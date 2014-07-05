@@ -21,6 +21,7 @@
 *           2013/02/23 1.6 fix memory access violation problem on arm
 *           2014/05/13 1.7 support bin65 and bin66
 *                          add receiver option -TTCORR
+*           2014/06/21 1.8 move decode_glostr() to rcvraw.c
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
 
@@ -470,6 +471,7 @@ static int decode_cresgloraw(raw_t *raw)
     raw->obs.n=n;
     return 1;
 }
+<<<<<<< HEAD
 /*<DELTE>*/
 #if 0
 /* get sign-magnitude bits ---------------------------------------------------*/
@@ -546,6 +548,8 @@ static int decode_glostr(raw_t *raw, int sat, int frq, geph_t *geph)
 #endif
 /*</DELETE>*/
 
+=======
+>>>>>>> 0acd857e68adf68c8d4f3acc1c0fac84f0ddfb28
 /* decode bin 65 glonass ephemeris -------------------------------------------*/
 static int decode_cresgloeph(raw_t *raw)
 {
@@ -577,7 +581,9 @@ static int decode_cresgloeph(raw_t *raw)
         memcpy(raw->subfrm[sat-1]+10*i,str,10);
     }
     /* decode glonass ephemeris strings */
-    if (!decode_glostr(raw,sat,frq,&geph)) return -1;
+    geph.tof=raw->time;
+    if (!decode_glostr(raw->subfrm[sat-1],&geph)||geph.sat!=sat) return -1;
+    geph.frq=frq;
     
     if (!strstr(raw->opt,"-EPHALL")) {
         if (geph.iode==raw->nav.geph[prn-1].iode) return 0; /* unchanged */
